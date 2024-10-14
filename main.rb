@@ -87,3 +87,27 @@ course_ids = courses.keys
 
 # Call the method to retrieve the roster for each course
 rosters = getRoster(course_ids)
+
+# Method to find overlapping students across courses, excluding the current user
+def findOverlap(rosters, current_user_id)
+  student_courses = Hash.new { |hash, key| hash[key] = [] }
+
+  # Populate the student_courses hash with courses each student is in, including avatars
+  rosters.each do |course_id, students|
+    students.each do |student|
+      next if student[:id] == current_user_id  # Exclude the current user by ID
+      student_courses[student[:name]] << { course_id: course_id, avatar_url: student[:avatar_url] }
+    end
+  end
+
+  # Filter students who are enrolled in more than one course
+  overlapping_students = student_courses.select { |student, courses| courses.size > 1 }
+
+  # Output overlapping students and the courses they’re enrolled in
+  overlapping_students.each do |student, courses|
+    course_list = courses.map { |entry| entry[:course_id] }.join(", ")
+    puts "#{student} is enrolled in multiple courses: #{course_list}"
+  end
+
+  overlapping_students
+end
